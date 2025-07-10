@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Lilia Get to Tanzania - Mission Trip Fundraiser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            color: #e74c3c;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .mission-info {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .mission-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .admin-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .admin-toggle {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            min-height: 80px;
+        }
+
+        .fundraiser-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .fundraiser-card.completed {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .fundraiser-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .fundraiser-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .fundraiser-bio {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transition: width 0.3s ease;
+            border-radius: 15px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .progress-percentage {
+            text-align: center;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .number-button {
+            aspect-ratio: 1;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .number-button:hover {
+            background: #3498db;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .number-button.selected {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+        }
+
+        .number-button.donated {
+            background: #95a5a6;
+            border-color: #95a5a6;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .donation-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .donation-summary h3 {
+            font-size: 1.5em;
+            color: #2c3e50;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-btn {
+            padding: 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .payment-btn:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .payment-btn.selected {
+            border-color: #e74c3c;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .donate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .donate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .donate-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .thank-you-message {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .donor-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .donor-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .number-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Help Lilia Get to Tanzania</h1>
+            <h2>Mission Trip to Arusha • November 20-30, 2024</h2>
+            <div class="mission-info">
+                <h3>Our Mission</h3>
+                <p>Join me in supporting a life-changing mission trip to Arusha, Tanzania! We'll be ministering to over 107 children and conducting projects at a local school. This includes painting classrooms, fixing desks, and other vital improvements to create a better learning environment.</p>
+                <p><strong>Your donation helps cover:</strong> Flights, accommodation, meals, project supplies, and materials for the children.</p>
+            </div>
+        </div>
+
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <button class="admin-toggle" onclick="toggleAdmin()">🛠️ Admin Panel</button>
+            <div class="admin-content" id="adminContent">
+                <h3>Admin Dashboard - Lilia</h3>
+                <div class="form-group">
+                    <label>Update Your Bio</label>
+                    <textarea id="bioText" placeholder="Write a personal message about why this mission trip is important to you...">I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!</textarea>
+                    <button onclick="updateBio()" style="margin-top: 10px; padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px;">Update Bio</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div class="form-group">
+                        <label>Lilia Venmo</label>
+                        <input type="text" id="venmo1" placeholder="@username" value="@Lilia-Jones2">
+                    </div>
+                    <div class="form-group">
+                        <label>Lilia CashApp</label>
+                        <input type="text" id="cashapp1" placeholder="$username" value="$itsliliuh">
+                    </div>
+                    <div class="form-group">
+                        <label>Lilia PayPal</label>
+                        <input type="text" id="paypal1" placeholder="email@example.com" value="jonesoverseas4_3@yahoo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Lilia Zelle</label>
+                        <input type="text" id="zelle1" placeholder="phone or email" value="512-585-4106">
+                    </div>
+                </div>
+                <button onclick="updatePaymentInfo()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-right: 10px;">Update Payment Info</button>
+                <button onclick="downloadDonorData()" style="padding: 15px 30px; background: #f39c12; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">Download Donor Data</button>
+                <div class="donor-list" id="donorList">
+                    <h4>Recent Donations:</h4>
+                    <div id="donorItems">No donations yet</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fundraiser-card" id="fundraiserCard">
+            <div class="fundraiser-header">
+                <div class="fundraiser-name">Lilia</div>
+                <div class="fundraiser-bio" id="bioDisplay">I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!</div>
+            </div>
+            
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">$0 / $3,500</div>
+                <div class="progress-percentage" id="progressPercentage">0% to goal</div>
+            </div>
+            
+            <div class="number-grid" id="numberGrid">
+                <!-- Numbers 1-80 will be generated here -->
+            </div>
+            
+            <div class="donation-summary" id="donationSummary">
+                <h3>Selected Amount: $0</h3>
+            </div>
+            
+            <div class="payment-methods">
+                <div class="payment-btn" onclick="selectPayment('venmo')">
+                    💜 Venmo<br>@Lilia-Jones2
+                </div>
+                <div class="payment-btn" onclick="selectPayment('cashapp')">
+                    💚 CashApp<br>$itsliliuh
+                </div>
+                <div class="payment-btn" onclick="selectPayment('paypal')">
+                    💙 PayPal<br>jonesoverseas4_3@yahoo.com
+                </div>
+                <div class="payment-btn" onclick="selectPayment('zelle')">
+                    🟡 Zelle<br>512-585-4106
+                </div>
+            </div>
+            
+            <button class="donate-btn" onclick="processDonation()" disabled id="donateBtn">
+                Select Amount & Payment Method
+            </button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>Complete Your Donation</h2>
+            <div id="paymentInfo"></div>
+            <p style="margin-top: 20px; color: #666;">After sending payment, click the button below to confirm your donation.</p>
+            <button onclick="confirmDonation()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 20px;">I've Sent Payment</button>
+        </div>
+    </div>
+
+    <script>
+        // Fundraiser data
+        let fundraiserData = {
+            name: "Lilia",
+            bio: "I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!",
+            raised: 0,
+            goal: 3500,
+            donations: {},
+            venmo: "@Lilia-Jones2",
+            cashapp: "$itsliliuh",
+            paypal: "jonesoverseas4_3@yahoo.com",
+            zelle: "512-585-4106",
+            completed: false
+        };
+
+        let selectedNumbers = [];
+        let selectedPayment = '';
+        let donorData = [];
+
+        // Secret key combination to show admin panel (Ctrl+Shift+A)
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+                const adminPanel = document.getElementById('adminPanel');
+                adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+
+        // Initialize the page
+        function init() {
+            generateNumberGrid();
+            updateProgress();
+            updateDonationSummary();
+        }
+
+        // Generate number grid (1-80)
+        function generateNumberGrid() {
+            const grid = document.getElementById('numberGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 80; i++) {
+                const button = document.createElement('div');
+                button.className = 'number-button';
+                button.textContent = i;
+                button.title = `Donate $${i}`;
+                
+                if (fundraiserData.donations[i]) {
+                    button.classList.add('donated');
+                    button.style.pointerEvents = 'none';
+                } else if (selectedNumbers.includes(i)) {
+                    button.classList.add('selected');
+                }
+                
+                button.onclick = () => toggleNumber(i);
+                grid.appendChild(button);
+            }
+        }
+
+        // Update donation summary
+        function updateDonationSummary() {
+            const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
+            document.getElementById('donationSummary').innerHTML = `<h3>Selected Amount: ${total}</h3>`;
+            
+            const donateBtn = document.getElementById('donateBtn');
+            if (selectedNumbers.length === 0) {
+                donateBtn.textContent = 'Select Amount & Payment Method';
+                donateBtn.disabled = true;
+            } else if (!selectedPayment) {
+                donateBtn.textContent = 'Select Payment Method';
+                donateBtn.disabled = true;
+            } else {
+                donateBtn.textContent = `Donate ${total}`;
+                donateBtn.disabled = false;
+            }
+        }
+
+        // Update progress
+        function updateProgress() {
+            const percentage = Math.min((fundraiserData.raised / fundraiserData.goal) * 100, 100);
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('progressText').textContent = `${fundraiserData.raised} / ${fundraiserData.goal.toLocaleString()}`;
+            document.getElementById('progressPercentage').textContent = `${Math.round(percentage)}% to goal`;
+            
+            if (fundraiserData.raised >= fundraiserData.goal) {
+                document.getElementById('fundraiserCard').classList.add('completed');
+                document.getElementById('numberGrid').style.display = 'none';
+                document.querySelector('.payment-methods').style.display = 'none';
+                document.getElementById('donateBtn').style.display = 'none';
+                document.getElementById('donationSummary').innerHTML = '<div class="thank-you-message">🎉 Goal Reached! Thank you for helping me get to Tanzania!</div>';
+            }
+        }
+
+        // Select payment method
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            updateDonationSummary();
+        }
+
+        // Process donation
+        function processDonation() {
+            if (selectedNumbers.length === 0 || !selectedPayment) return;
+            
+            const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
+            showPaymentModal(selectedPayment, total);
+        }
+
+        // Show payment modal
+        function showPaymentModal(method, amount) {
+            const modal = document.getElementById('paymentModal');
+            const info = document.getElementById('paymentInfo');
+            
+            let paymentHandle = method === 'venmo' ? fundraiserData.venmo : fundraiserData.cashapp;
+            let methodName = method === 'venmo' ? 'Venmo' : 'CashApp';
+            
+            info.innerHTML = `
+                <h3>Send ${amount} to Lilia</h3>
+                <p><strong>${methodName}:</strong> ${paymentHandle}</p>
+                <p><strong>Memo:</strong> Tanzania Mission Trip</p>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <p>Please send <strong>${amount}</strong> to <strong>${paymentHandle}</strong> using ${methodName}</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Confirm donation
+        function confirmDonation() {
+            const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
+            
+            // Record donation
+            selectedNumbers.forEach(num => {
+                fundraiserData.donations[num] = true;
+            });
+            
+            fundraiserData.raised += total;
+            
+            // Record donor data
+            const donation = {
+                amount: total,
+                numbers: [...selectedNumbers],
+                method: selectedPayment,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleDateString()
+            };
+            donorData.push(donation);
+            
+            // Reset selections
+            selectedNumbers = [];
+            selectedPayment = '';
+            
+            // Update UI
+            generateNumberGrid();
+            updateProgress();
+            updateDonationSummary();
+            updateDonorList();
+            closeModal();
+            
+            // Show success message
+            alert('Thanks for helping me get to Tanzania! I can\'t wait to share updates with you.');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        // Admin functions
+        function toggleAdmin() {
+            const content = document.getElementById('adminContent');
+            content.classList.toggle('active');
+        }
+
+        function updateBio() {
+            const newBio = document.getElementById('bioText').value;
+            fundraiserData.bio = newBio;
+            document.getElementById('bioDisplay').textContent = newBio;
+            alert('Bio updated successfully!');
+        }
+
+        function updatePaymentInfo() {
+            fundraiserData.venmo = document.getElementById('venmo1').value;
+            fundraiserData.cashapp = document.getElementById('cashapp1').value;
+            fundraiserData.paypal = document.getElementById('paypal1').value;
+            fundraiserData.zelle = document.getElementById('zelle1').value;
+            
+            // Update the payment buttons display
+            document.querySelector('.payment-methods').innerHTML = `
+                <div class="payment-btn" onclick="selectPayment('venmo')">
+                    💜 Venmo<br>${fundraiserData.venmo}
+                </div>
+                <div class="payment-btn" onclick="selectPayment('cashapp')">
+                    💚 CashApp<br>${fundraiserData.cashapp}
+                </div>
+                <div class="payment-btn" onclick="selectPayment('paypal')">
+                    💙 PayPal<br>${fundraiserData.paypal}
+                </div>
+                <div class="payment-btn" onclick="selectPayment('zelle')">
+                    🟡 Zelle<br>${fundraiserData.zelle}
+                </div>
+            `;
+            
+            alert('Payment information updated successfully!');
+        }
+
+        function updateDonorList() {
+            const donorItems = document.getElementById('donorItems');
+            if (donorData.length === 0) {
+                donorItems.innerHTML = 'No donations yet';
+                return;
+            }
+            
+            donorItems.innerHTML = donorData.map((donation, index) => `
+                <div class="donor-item">
+                    <span>Donation #${index + 1}: ${donation.amount}</span>
+                    <span>${donation.date}</span>
+                </div>
+            `).join('');
+        }
+
+        function downloadDonorData() {
+            if (donorData.length === 0) {
+                alert('No donor data to download yet.');
+                return;
+            }
+            
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Fundraiser,Amount,Numbers,Payment Method,Date,Timestamp\n" +
+                donorData.map(d => `Lilia,${d.amount},"${d.numbers.join(';')}",${d.method},${d.date},${d.timestamp}`).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "lilia_donor_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize the page
+        init();
+    </script>
+</body>
+</html>
