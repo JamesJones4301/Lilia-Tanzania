@@ -162,7 +162,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
             transition: width 0.3s ease;
             border-radius: 15px;
         }
@@ -211,8 +211,8 @@
         }
 
         .number-button.selected {
-            background: #e74c3c;
-            border-color: #e74c3c;
+            background: #27ae60;
+            border-color: #27ae60;
             color: white;
         }
 
@@ -262,15 +262,15 @@
         }
 
         .payment-btn.selected {
-            border-color: #e74c3c;
-            background: #e74c3c;
+            border-color: #27ae60;
+            background: #27ae60;
             color: white;
         }
 
         .donate-btn {
             width: 100%;
             padding: 20px;
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
             color: white;
             border: none;
             border-radius: 10px;
@@ -371,8 +371,11 @@
             <h2>Mission Trip to Arusha • November 20-30, 2024</h2>
             <div class="mission-info">
                 <h3>Our Mission</h3>
-                <p>Join me in supporting a life-changing mission trip to Arusha, Tanzania! We'll be ministering to over 107 children and conducting projects at a local school. This includes painting classrooms, fixing desks, and other vital improvements to create a better learning environment.</p>
+                <p>Join me in supporting a life-changing mission trip to Arusha, Tanzania! We'll be ministering to over 107,000 children and conducting projects at a local school. This includes painting classrooms, fixing desks, and other vital improvements to create a better learning environment.</p>
                 <p><strong>Your donation helps cover:</strong> Flights, accommodation, meals, project supplies, and materials for the children.</p>
+                <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3498db;">
+                    <p><strong>"Pick A Number"</strong> to represent the donation amount that you would like to give (you can choose multiple numbers to get the sum of your choice). Afterwards, scroll to the bottom to select payment option and press "Submit Donation".</p>
+                </div>
             </div>
         </div>
 
@@ -406,7 +409,7 @@
                 <button onclick="updatePaymentInfo()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-right: 10px;">Update Payment Info</button>
                 <button onclick="downloadDonorData()" style="padding: 15px 30px; background: #f39c12; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">Download Donor Data</button>
                 <div class="donor-list" id="donorList">
-                    <h4>Recent Donations:</h4>
+                    <h4>Recent Donations & Donor Information:</h4>
                     <div id="donorItems">No donations yet</div>
                 </div>
             </div>
@@ -450,7 +453,7 @@
             </div>
             
             <button class="donate-btn" onclick="processDonation()" disabled id="donateBtn">
-                Select Amount & Payment Method
+                Submit Donation
             </button>
         </div>
     </div>
@@ -461,7 +464,27 @@
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2>Complete Your Donation</h2>
             <div id="paymentInfo"></div>
-            <p style="margin-top: 20px; color: #666;">After sending payment, click the button below to confirm your donation.</p>
+            
+            <!-- Donor Information Form -->
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left;">
+                <h4 style="margin-bottom: 15px; text-align: center;">Donor Information (for thank you note)</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Full Name *</label>
+                        <input type="text" id="donorName" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone Number *</label>
+                        <input type="tel" id="donorPhone" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Mailing Address *</label>
+                    <textarea id="donorAddress" required rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Street Address, City, State, ZIP"></textarea>
+                </div>
+            </div>
+            
+            <p style="margin-top: 20px; color: #666;">After sending payment and filling out your information, click the button below to confirm your donation.</p>
             <button onclick="confirmDonation()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 20px;">I've Sent Payment</button>
         </div>
     </div>
@@ -552,10 +575,10 @@
             
             const donateBtn = document.getElementById('donateBtn');
             if (selectedNumbers.length === 0) {
-                donateBtn.textContent = 'Select Amount & Payment Method';
+                donateBtn.textContent = 'Submit Donation';
                 donateBtn.disabled = true;
             } else if (!selectedPayment) {
-                donateBtn.textContent = 'Select Payment Method';
+                donateBtn.textContent = 'Submit Donation';
                 donateBtn.disabled = true;
             } else {
                 donateBtn.textContent = `Donate $${total}`;
@@ -636,28 +659,46 @@
 
         // Confirm donation
         function confirmDonation() {
+            // Validate donor information
+            const donorName = document.getElementById('donorName').value.trim();
+            const donorPhone = document.getElementById('donorPhone').value.trim();
+            const donorAddress = document.getElementById('donorAddress').value.trim();
+            
+            if (!donorName || !donorPhone || !donorAddress) {
+                alert('Please fill out all donor information fields (Name, Phone, Address) before confirming your donation.');
+                return;
+            }
+            
             const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
             
-            // Record donation
+            // Record donation and mark numbers as permanently donated
             selectedNumbers.forEach(num => {
                 fundraiserData.donations[num] = true;
             });
             
             fundraiserData.raised += total;
             
-            // Record donor data
+            // Record donor data with contact information
             const donation = {
                 amount: total,
                 numbers: [...selectedNumbers],
                 method: selectedPayment,
                 timestamp: new Date().toISOString(),
-                date: new Date().toLocaleDateString()
+                date: new Date().toLocaleDateString(),
+                donorName: donorName,
+                donorPhone: donorPhone,
+                donorAddress: donorAddress
             };
             donorData.push(donation);
             
             // Reset selections
             selectedNumbers = [];
             selectedPayment = '';
+            
+            // Clear donor form
+            document.getElementById('donorName').value = '';
+            document.getElementById('donorPhone').value = '';
+            document.getElementById('donorAddress').value = '';
             
             // Update UI
             generateNumberGrid();
@@ -722,9 +763,18 @@
             }
             
             donorItems.innerHTML = donorData.map((donation, index) => `
-                <div class="donor-item">
-                    <span>Donation #${index + 1}: $${donation.amount}</span>
-                    <span>${donation.date}</span>
+                <div class="donor-item" style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #27ae60;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span><strong>Donation #${index + 1}: $${donation.amount}</strong></span>
+                        <span>${donation.date}</span>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        <div><strong>Name:</strong> ${donation.donorName}</div>
+                        <div><strong>Phone:</strong> ${donation.donorPhone}</div>
+                        <div><strong>Address:</strong> ${donation.donorAddress}</div>
+                        <div><strong>Payment:</strong> ${donation.method}</div>
+                        <div><strong>Numbers:</strong> ${donation.numbers.join(', ')}</div>
+                    </div>
                 </div>
             `).join('');
         }
@@ -736,8 +786,8 @@
             }
             
             const csvContent = "data:text/csv;charset=utf-8," + 
-                "Fundraiser,Amount,Numbers,Payment Method,Date,Timestamp\n" +
-                donorData.map(d => `Lilia,${d.amount},"${d.numbers.join(';')}",${d.method},${d.date},${d.timestamp}`).join("\n");
+                "Fundraiser,Amount,Numbers,Payment Method,Date,Timestamp,Donor Name,Phone,Address\n" +
+                donorData.map(d => `Lilia,$${d.amount},"${d.numbers.join(';')}",${d.method},${d.date},${d.timestamp},"${d.donorName}","${d.donorPhone}","${d.donorAddress.replace(/"/g, '""')}"`).join("\n");
             
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
