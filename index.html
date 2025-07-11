@@ -374,7 +374,7 @@
                 <p>We'll be ministering to over 107,000 children in Arusha, Tanzania and conducting projects at a local school (possibly painting classrooms, fixing desks, and other vital improvements to create a better learning environment).</p>
                 <p><strong>Your donation helps cover:</strong> Flights, accommodation, meals, project supplies, and materials for the children.</p>
                 <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3498db;">
-                    <p><strong>"Pick A Number"</strong> to represent the donation amount that you would like to give (you can choose multiple numbers to get the sum of your choice). Afterwards, scroll to the bottom to select payment option and press "Submit Donation".</p>
+                    <p><strong>"Pick A Number"</strong> to represent the donation amount that you would like to give (you can choose multiple numbers to get the sum of your choice). Afterwards, scroll to the bottom to select payment option and press "Next".</p>
                 </div>
             </div>
         </div>
@@ -453,7 +453,7 @@
             </div>
             
             <button class="donate-btn" onclick="processDonation()" disabled id="donateBtn">
-                Submit Donation
+                Next
             </button>
         </div>
     </div>
@@ -463,6 +463,7 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2>Complete Your Donation</h2>
+            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">(if not completed already)</p>
             <div id="paymentInfo"></div>
             
             <!-- Donor Information Form -->
@@ -571,17 +572,17 @@
         // Update donation summary
         function updateDonationSummary() {
             const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
-            document.getElementById('donationSummary').innerHTML = `<h3>Selected Amount: $${total}</h3>`;
+            document.getElementById('donationSummary').innerHTML = `<h3>Selected Amount: ${total}</h3>`;
             
             const donateBtn = document.getElementById('donateBtn');
             if (selectedNumbers.length === 0) {
-                donateBtn.textContent = 'Submit Donation';
+                donateBtn.textContent = 'Next';
                 donateBtn.disabled = true;
             } else if (!selectedPayment) {
-                donateBtn.textContent = 'Submit Donation';
+                donateBtn.textContent = 'Next';
                 donateBtn.disabled = true;
             } else {
-                donateBtn.textContent = `Donate $${total}`;
+                donateBtn.textContent = `Next (${total})`;
                 donateBtn.disabled = false;
             }
         }
