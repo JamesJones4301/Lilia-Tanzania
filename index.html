@@ -371,7 +371,7 @@
             <h2>Mission Trip to Arusha • November 20-30, 2024</h2>
             <div class="mission-info">
                 <h3>Our Mission</h3>
-                <p>Join me in supporting a life-changing mission trip to Arusha, Tanzania! We'll be ministering to over 107,000 children and conducting projects at a local school. This includes painting classrooms, fixing desks, and other vital improvements to create a better learning environment.</p>
+                <p>We'll be ministering to over 107,000 children in Arusha, Tanzania and conducting projects at a local school (possibly painting classrooms, fixing desks, and other vital improvements to create a better learning environment).</p>
                 <p><strong>Your donation helps cover:</strong> Flights, accommodation, meals, project supplies, and materials for the children.</p>
                 <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3498db;">
                     <p><strong>"Pick A Number"</strong> to represent the donation amount that you would like to give (you can choose multiple numbers to get the sum of your choice). Afterwards, scroll to the bottom to select payment option and press "Submit Donation".</p>
@@ -439,13 +439,13 @@
             
             <div class="payment-methods" id="paymentMethods">
                 <div class="payment-btn" onclick="selectPayment('venmo')">
-                    💜 Venmo<br>@Lilia-Jones2
+                    💜 <a href="https://venmo.com/u/Lilia-Jones-2" target="_blank" style="color: inherit; text-decoration: none;">Venmo</a>
                 </div>
-                <div class="payment-btn" onclick="selectPayment('cashapp')">
-                    💚 CashApp<br>$itsliliuh
+                <div class="payment-btn" onclick="openCashApp('https://cash.app/$itsliliuh')">
+                    💚 CashApp
                 </div>
                 <div class="payment-btn" onclick="selectPayment('paypal')">
-                    💙 PayPal<br>jonesoverseas4_3@yahoo.com
+                    💙 PayPal
                 </div>
                 <div class="payment-btn" onclick="selectPayment('zelle')">
                     🟡 Zelle<br>512-585-4106
@@ -610,6 +610,12 @@
             updateDonationSummary();
         }
 
+        // Open CashApp
+        function openCashApp(url) {
+            window.open(url, '_blank');
+            selectPayment('cashapp');
+        }
+
         // Process donation
         function processDonation() {
             if (selectedNumbers.length === 0 || !selectedPayment) return;
@@ -739,16 +745,16 @@
             // Update the payment buttons display
             document.getElementById('paymentMethods').innerHTML = `
                 <div class="payment-btn" onclick="selectPayment('venmo')">
-                    💜 Venmo<br>${fundraiserData.venmo}
+                    💜 <a href="https://venmo.com/u/Lilia-Jones-2" target="_blank" style="color: inherit; text-decoration: none;">Venmo</a>
                 </div>
-                <div class="payment-btn" onclick="selectPayment('cashapp')">
-                    💚 CashApp<br>${fundraiserData.cashapp}
+                <div class="payment-btn" onclick="openCashApp('https://cash.app/$itsliliuh')">
+                    💚 CashApp
                 </div>
                 <div class="payment-btn" onclick="selectPayment('paypal')">
-                    💙 PayPal<br>${fundraiserData.paypal}
+                    💙 PayPal
                 </div>
                 <div class="payment-btn" onclick="selectPayment('zelle')">
-                    🟡 Zelle<br>${fundraiserData.zelle}
+                    🟡 Zelle<br>512-585-4106
                 </div>
             `;
             
