@@ -388,6 +388,11 @@
                     <textarea id="bioText">I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!</textarea>
                     <button onclick="updateBio()" style="margin-top: 10px; padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px;">Update Bio</button>
                 </div>
+                <div class="form-group">
+                    <label>Mark Numbers as Donated (when you receive payments directly)</label>
+                    <input type="text" id="manualNumbers" placeholder="Enter numbers separated by commas (e.g., 7,14,21)" style="margin-bottom: 10px;">
+                    <button onclick="markNumbersAsDonated()" style="padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 5px; width: 100%;">Mark as Donated</button>
+                </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
                     <div class="form-group">
                         <label>Lilia Venmo</label>
@@ -508,6 +513,7 @@
         let selectedNumbers = [];
         let selectedPayment = '';
         let donorData = [];
+        let tapCount = 0;
 
         // Secret key combination to show admin panel (Ctrl+Shift+A)
         document.addEventListener('keydown', function(event) {
@@ -517,11 +523,36 @@
             }
         });
 
+        // Mobile-friendly admin access: Tap fundraiser name 5 times quickly
+        function setupMobileAdminAccess() {
+            const fundraiserName = document.querySelector('.fundraiser-name');
+            fundraiserName.addEventListener('click', function() {
+                tapCount++;
+                if (tapCount === 5) {
+                    const adminPanel = document.getElementById('adminPanel');
+                    adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+                    tapCount = 0;
+                    
+                    // Show a brief indicator
+                    this.style.color = '#e74c3c';
+                    setTimeout(() => {
+                        this.style.color = '#2c3e50';
+                    }, 1000);
+                }
+                
+                // Reset tap count after 2 seconds
+                setTimeout(() => {
+                    tapCount = 0;
+                }, 2000);
+            });
+        }
+
         // Initialize the page
         function init() {
             generateNumberGrid();
             updateProgress();
             updateDonationSummary();
+            setupMobileAdminAccess();
         }
 
         // Generate number grid (1-80)
@@ -772,6 +803,48 @@
             fundraiserData.bio = newBio;
             document.getElementById('bioDisplay').textContent = newBio;
             alert('Bio updated successfully!');
+        }
+
+        function markNumbersAsDonated() {
+            const input = document.getElementById('manualNumbers').value.trim();
+            if (!input) {
+                alert('Please enter at least one number.');
+                return;
+            }
+            
+            const numbers = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 80);
+            
+            if (numbers.length === 0) {
+                alert('Please enter valid numbers between 1 and 80.');
+                return;
+            }
+            
+            let newlyMarked = [];
+            let alreadyTaken = [];
+            
+            numbers.forEach(num => {
+                if (fundraiserData.donations[num]) {
+                    alreadyTaken.push(num);
+                } else {
+                    fundraiserData.donations[num] = true;
+                    newlyMarked.push(num);
+                }
+            });
+            
+            if (newlyMarked.length > 0) {
+                const total = newlyMarked.reduce((sum, num) => sum + num, 0);
+                fundraiserData.raised += total;
+                
+                generateNumberGrid();
+                updateProgress();
+                updateDonationSummary();
+                
+                alert(`Successfully marked numbers ${newlyMarked.join(', ')} as donated! Added ${total} to your total.${alreadyTaken.length > 0 ? `\n\nNumbers ${alreadyTaken.join(', ')} were already taken.` : ''}`);
+            } else {
+                alert(`All entered numbers (${alreadyTaken.join(', ')}) were already taken.`);
+            }
+            
+            document.getElementById('manualNumbers').value = '';
         }
 
         function updatePaymentInfo() {
