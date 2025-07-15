@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help Lilia Get to Tanzania - Mission Trip Fundraiser</title>
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
     <style>
         * {
             margin: 0;
@@ -65,7 +72,6 @@
             border-radius: 10px;
             margin-bottom: 30px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: none;
         }
 
         .admin-toggle {
@@ -98,21 +104,17 @@
             color: #2c3e50;
         }
 
-        .form-group textarea {
+        .form-group textarea, .form-group input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
-            min-height: 80px;
+            min-height: 40px;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+        .form-group textarea {
+            min-height: 80px;
         }
 
         .fundraiser-card {
@@ -138,6 +140,7 @@
             font-weight: bold;
             margin-bottom: 15px;
             color: #2c3e50;
+            cursor: pointer;
         }
 
         .fundraiser-bio {
@@ -200,8 +203,6 @@
             align-items: center;
             justify-content: center;
             font-size: 0.9em;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .number-button:hover {
@@ -221,7 +222,6 @@
             border-color: #95a5a6;
             color: white;
             cursor: not-allowed;
-            pointer-events: none;
         }
 
         .donation-summary {
@@ -323,30 +323,41 @@
             color: #999;
         }
 
-        .thank-you-message {
+        .success-message {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             margin: 20px 0;
             text-align: center;
-            font-size: 1.3em;
         }
 
-        .donor-list {
-            background: #f8f9fa;
+        .status-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .auth-form {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
             padding: 20px;
             border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .donor-item {
-            background: white;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
+            margin: 15px 0;
         }
 
         @media (max-width: 768px) {
@@ -379,43 +390,44 @@
             </div>
         </div>
 
-        <div class="admin-panel" id="adminPanel">
+        <div class="admin-panel" id="adminPanel" style="display: none;">
             <button class="admin-toggle" onclick="toggleAdmin()">🛠️ Admin Panel</button>
             <div class="admin-content" id="adminContent">
                 <h3>Admin Dashboard - Lilia</h3>
-                <div class="form-group">
-                    <label>Update Your Bio</label>
-                    <textarea id="bioText">I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!</textarea>
-                    <button onclick="updateBio()" style="margin-top: 10px; padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px;">Update Bio</button>
+                
+                <!-- Admin Authentication -->
+                <div class="auth-form" id="authForm">
+                    <h4>🔐 Admin Authentication Required</h4>
+                    <div class="form-group">
+                        <label>Admin Password:</label>
+                        <input type="password" id="adminPassword" placeholder="Enter admin password">
+                        <button onclick="authenticateAdmin()" style="margin-top: 10px; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 5px; width: 100%;">🔓 Unlock Admin Panel</button>
+                    </div>
+                    <div id="authError" class="status-indicator status-error" style="display: none;"></div>
                 </div>
-                <div class="form-group">
-                    <label>Mark Numbers as Donated (when you receive payments directly)</label>
-                    <input type="text" id="manualNumbers" placeholder="Enter numbers separated by commas (e.g., 7,14,21)" style="margin-bottom: 10px;">
-                    <button onclick="markNumbersAsDonated()" style="padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 5px; width: 100%;">Mark as Donated</button>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+
+                <div id="adminDashboard" style="display: none;">
                     <div class="form-group">
-                        <label>Lilia Venmo</label>
-                        <input type="text" id="venmoInput" value="@Lilia-Jones2">
+                        <label>📊 Stats</label>
+                        <p><strong>Total Donations:</strong> <span id="donationCount">0</span></p>
+                        <p><strong>Total Raised:</strong> $<span id="totalRaised">0</span></p>
+                        <p><strong>Last Updated:</strong> <span id="lastUpdated">Never</span></p>
                     </div>
+
                     <div class="form-group">
-                        <label>Lilia CashApp</label>
-                        <input type="text" id="cashappInput" value="$itsliliuh">
+                        <label>Update Your Bio</label>
+                        <textarea id="bioText" maxlength="500">I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!</textarea>
+                        <button onclick="updateBio()" style="margin-top: 10px; padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px;">Update Bio</button>
                     </div>
+
                     <div class="form-group">
-                        <label>Lilia PayPal</label>
-                        <input type="text" id="paypalInput" value="jonesoverseas4_3@yahoo.com">
+                        <label>Mark Numbers as Donated</label>
+                        <input type="text" id="manualNumbers" placeholder="Enter numbers separated by commas (e.g., 9,15,23)" style="margin-bottom: 10px;" maxlength="200">
+                        <button onclick="markNumbersAsDonated()" style="padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 5px; width: 100%;">Mark as Donated</button>
                     </div>
-                    <div class="form-group">
-                        <label>Lilia Zelle</label>
-                        <input type="text" id="zelleInput" value="512-585-4106">
-                    </div>
-                </div>
-                <button onclick="updatePaymentInfo()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-right: 10px;">Update Payment Info</button>
-                <button onclick="downloadDonorData()" style="padding: 15px 30px; background: #f39c12; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">Download Donor Data</button>
-                <div class="donor-list" id="donorList">
-                    <h4>Recent Donations & Donor Information:</h4>
-                    <div id="donorItems">No donations yet</div>
+
+                    <button onclick="downloadDonorData()" style="padding: 15px 30px; background: #f39c12; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 5px;">📥 Download CSV</button>
+                    <button onclick="resetAllData()" style="padding: 15px 30px; background: #dc3545; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 5px;">🗑️ Reset All Data</button>
                 </div>
             </div>
         </div>
@@ -442,7 +454,7 @@
                 <h3>Selected Amount: $0</h3>
             </div>
             
-            <div class="payment-methods" id="paymentMethods">
+            <div class="payment-methods">
                 <div class="payment-btn" onclick="openVenmo('https://venmo.com/u/Lilia-Jones-2')">
                     💜 Venmo
                 </div>
@@ -468,94 +480,113 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2>Complete Your Donation</h2>
-            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">(if not completed already)</p>
             <div id="paymentInfo"></div>
             
-            <!-- Donor Information Form -->
             <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left;">
-                <h4 style="margin-bottom: 15px; text-align: center;">Donor Information (for thank you note)</h4>
+                <h4 style="margin-bottom: 15px; text-align: center;">Donor Information</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: bold;">Full Name *</label>
-                        <input type="text" id="donorName" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="text" id="donorName" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;" maxlength="100">
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone Number *</label>
-                        <input type="tel" id="donorPhone" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="tel" id="donorPhone" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;" maxlength="20">
                     </div>
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: bold;">Mailing Address *</label>
-                    <textarea id="donorAddress" required rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Street Address, City, State, ZIP"></textarea>
+                    <textarea id="donorAddress" required rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Street Address, City, State, ZIP" maxlength="300"></textarea>
                 </div>
             </div>
             
-            <p style="margin-top: 20px; color: #666;">After sending payment and filling out your information, click the button below to confirm your donation.</p>
-            <button onclick="confirmDonation()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 20px;">I've Sent Payment</button>
+            <p style="margin-top: 20px; color: #666;">After sending payment and filling out your information, click the button below.</p>
+            <button onclick="confirmDonation()" id="confirmBtn" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 20px;">I've Sent Payment</button>
         </div>
     </div>
 
     <script>
-        // Fundraiser data
+        // Security Configuration
+        const ADMIN_PASSWORD = 'lilia2024'; // Change this password!
+        
+        // Fundraiser data - stored in localStorage
         let fundraiserData = {
             name: "Lilia",
             bio: "I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!",
             raised: 0,
             goal: 3500,
             donations: {},
-            venmo: "@Lilia-Jones2",
-            cashapp: "$itsliliuh",
-            paypal: "jonesoverseas4_3@yahoo.com",
-            zelle: "512-585-4106",
             completed: false
         };
 
+        let donorData = [];
         let selectedNumbers = [];
         let selectedPayment = '';
-        let donorData = [];
         let tapCount = 0;
+        let isAuthenticated = false;
 
-        // Secret key combination to show admin panel (Ctrl+Shift+A)
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.shiftKey && event.key === 'A') {
-                const adminPanel = document.getElementById('adminPanel');
-                adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('lilia_fundraiser_data');
+            if (saved) {
+                fundraiserData = JSON.parse(saved);
             }
-        });
-
-        // Mobile-friendly admin access: Tap fundraiser name 5 times quickly
-        function setupMobileAdminAccess() {
-            const fundraiserName = document.querySelector('.fundraiser-name');
-            fundraiserName.addEventListener('click', function() {
-                tapCount++;
-                if (tapCount === 5) {
-                    const adminPanel = document.getElementById('adminPanel');
-                    adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
-                    tapCount = 0;
-                    
-                    // Show a brief indicator
-                    this.style.color = '#e74c3c';
-                    setTimeout(() => {
-                        this.style.color = '#2c3e50';
-                    }, 1000);
-                }
-                
-                // Reset tap count after 2 seconds
-                setTimeout(() => {
-                    tapCount = 0;
-                }, 2000);
-            });
+            
+            const savedDonors = localStorage.getItem('lilia_donor_data');
+            if (savedDonors) {
+                donorData = JSON.parse(savedDonors);
+            }
         }
 
-        // Initialize the page
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('lilia_fundraiser_data', JSON.stringify(fundraiserData));
+            localStorage.setItem('lilia_donor_data', JSON.stringify(donorData));
+        }
+
+        // Security Functions
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return '';
+            return input.replace(/[<>\"'&]/g, function(match) {
+                const map = {
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#x27;',
+                    '&': '&amp;'
+                };
+                return map[match];
+            }).trim();
+        }
+
+        function authenticateAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            const authError = document.getElementById('authError');
+            
+            if (password === ADMIN_PASSWORD) {
+                isAuthenticated = true;
+                document.getElementById('authForm').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                updateAdminStats();
+            } else {
+                authError.textContent = 'Invalid admin password';
+                authError.style.display = 'block';
+                setTimeout(() => {
+                    authError.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Initialize page
         function init() {
+            loadData();
             generateNumberGrid();
             updateProgress();
             updateDonationSummary();
             setupMobileAdminAccess();
         }
 
-        // Generate number grid (1-80)
         function generateNumberGrid() {
             const grid = document.getElementById('numberGrid');
             grid.innerHTML = '';
@@ -565,27 +596,19 @@
                 button.className = 'number-button';
                 button.textContent = i;
                 button.title = `Donate $${i}`;
-                button.setAttribute('data-number', i);
                 
                 if (fundraiserData.donations[i]) {
                     button.classList.add('donated');
+                    button.style.pointerEvents = 'none';
                 } else if (selectedNumbers.includes(i)) {
                     button.classList.add('selected');
                 }
                 
-                // Add click event listener
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const num = parseInt(this.getAttribute('data-number'));
-                    toggleNumber(num);
-                });
-                
+                button.onclick = () => toggleNumber(i);
                 grid.appendChild(button);
             }
         }
 
-        // Toggle number selection
         function toggleNumber(number) {
             if (fundraiserData.donations[number]) return;
             
@@ -600,10 +623,9 @@
             updateDonationSummary();
         }
 
-        // Update donation summary
         function updateDonationSummary() {
             const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
-            document.getElementById('donationSummary').innerHTML = `<h3>Selected Amount: ${total}</h3>`;
+            document.getElementById('donationSummary').innerHTML = `<h3>Selected Amount: $${total}</h3>`;
             
             const donateBtn = document.getElementById('donateBtn');
             if (selectedNumbers.length === 0) {
@@ -613,28 +635,31 @@
                 donateBtn.textContent = 'Next';
                 donateBtn.disabled = true;
             } else {
-                donateBtn.textContent = `Next (${total})`;
+                donateBtn.textContent = `Next ($${total})`;
                 donateBtn.disabled = false;
             }
         }
 
-        // Update progress
         function updateProgress() {
             const percentage = Math.min((fundraiserData.raised / fundraiserData.goal) * 100, 100);
             document.getElementById('progressFill').style.width = `${percentage}%`;
             document.getElementById('progressText').textContent = `$${fundraiserData.raised} / $${fundraiserData.goal.toLocaleString()}`;
             document.getElementById('progressPercentage').textContent = `${Math.round(percentage)}% to goal`;
             
+            if (isAuthenticated) {
+                document.getElementById('bioDisplay').textContent = fundraiserData.bio;
+                document.getElementById('bioText').value = fundraiserData.bio;
+            }
+            
             if (fundraiserData.raised >= fundraiserData.goal) {
                 document.getElementById('fundraiserCard').classList.add('completed');
                 document.getElementById('numberGrid').style.display = 'none';
-                document.getElementById('paymentMethods').style.display = 'none';
+                document.querySelector('.payment-methods').style.display = 'none';
                 document.getElementById('donateBtn').style.display = 'none';
-                document.getElementById('donationSummary').innerHTML = '<div class="thank-you-message">🎉 Goal Reached! Thank you for helping me get to Tanzania!</div>';
+                document.getElementById('donationSummary').innerHTML = '<div class="success-message">🎉 Goal Reached! Thank you for helping me get to Tanzania!</div>';
             }
         }
 
-        // Select payment method
         function selectPayment(method) {
             selectedPayment = method;
             document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
@@ -642,51 +667,21 @@
             updateDonationSummary();
         }
 
-        // Open CashApp
+        function openVenmo(url) {
+            window.open(url, '_blank');
+            selectPayment('venmo');
+        }
+
         function openCashApp(url) {
             window.open(url, '_blank');
             selectPayment('cashapp');
         }
 
-        // Open Venmo (mobile-friendly)
-        function openVenmo(webUrl) {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                // Try to open Venmo app first
-                const venmoAppUrl = 'venmo://paycharge?txn=pay&recipients=Lilia-Jones-2&amount=0&note=Tanzania%20Mission%20Trip';
-                window.location.href = venmoAppUrl;
-                
-                // Fallback to web after a short delay if app doesn't open
-                setTimeout(() => {
-                    window.open(webUrl, '_blank');
-                }, 1500);
-            } else {
-                window.open(webUrl, '_blank');
-            }
-            selectPayment('venmo');
-        }
-
-        // Open PayPal (mobile-friendly)
         function openPayPal(email) {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                // Try to open PayPal app first
-                const paypalAppUrl = `paypal://paypalme/${email}`;
-                window.location.href = paypalAppUrl;
-                
-                // Fallback to web after a short delay if app doesn't open
-                setTimeout(() => {
-                    window.open(`https://www.paypal.com/paypalme/${email}`, '_blank');
-                }, 1500);
-            } else {
-                window.open(`https://www.paypal.com/paypalme/${email}`, '_blank');
-            }
+            window.open(`https://www.paypal.com/paypalme/${email}`, '_blank');
             selectPayment('paypal');
         }
 
-        // Process donation
         function processDonation() {
             if (selectedNumbers.length === 0 || !selectedPayment) return;
             
@@ -694,125 +689,147 @@
             showPaymentModal(selectedPayment, total);
         }
 
-        // Show payment modal
         function showPaymentModal(method, amount) {
             const modal = document.getElementById('paymentModal');
             const info = document.getElementById('paymentInfo');
             
-            let paymentHandle = '';
-            let methodName = '';
+            const paymentMethods = {
+                'venmo': { handle: '@Lilia-Jones2', name: 'Venmo' },
+                'cashapp': { handle: '$itsliliuh', name: 'CashApp' },
+                'paypal': { handle: 'jonesoverseas4_3@yahoo.com', name: 'PayPal' },
+                'zelle': { handle: '512-585-4106', name: 'Zelle' }
+            };
             
-            switch(method) {
-                case 'venmo':
-                    paymentHandle = fundraiserData.venmo;
-                    methodName = 'Venmo';
-                    break;
-                case 'cashapp':
-                    paymentHandle = fundraiserData.cashapp;
-                    methodName = 'CashApp';
-                    break;
-                case 'paypal':
-                    paymentHandle = fundraiserData.paypal;
-                    methodName = 'PayPal';
-                    break;
-                case 'zelle':
-                    paymentHandle = fundraiserData.zelle;
-                    methodName = 'Zelle';
-                    break;
-            }
+            const payment = paymentMethods[method];
+            if (!payment) return;
             
             info.innerHTML = `
                 <h3>Send $${amount} to Lilia</h3>
-                <p><strong>${methodName}:</strong> ${paymentHandle}</p>
+                <p><strong>${payment.name}:</strong> ${payment.handle}</p>
                 <p><strong>Memo:</strong> Tanzania Mission Trip</p>
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                    <p>Please send <strong>$${amount}</strong> to <strong>${paymentHandle}</strong> using ${methodName}</p>
+                    <p>Please send <strong>$${amount}</strong> using ${payment.name}</p>
                 </div>
             `;
             
             modal.style.display = 'block';
         }
 
-        // Confirm donation
         function confirmDonation() {
-            // Validate donor information
-            const donorName = document.getElementById('donorName').value.trim();
-            const donorPhone = document.getElementById('donorPhone').value.trim();
-            const donorAddress = document.getElementById('donorAddress').value.trim();
+            const donorName = sanitizeInput(document.getElementById('donorName').value);
+            const donorPhone = sanitizeInput(document.getElementById('donorPhone').value);
+            const donorAddress = sanitizeInput(document.getElementById('donorAddress').value);
             
             if (!donorName || !donorPhone || !donorAddress) {
-                alert('Please fill out all donor information fields (Name, Phone, Address) before confirming your donation.');
+                alert('Please fill out all donor information fields.');
                 return;
             }
             
             const total = selectedNumbers.reduce((sum, num) => sum + num, 0);
             
-            // Record donation and mark numbers as permanently donated
+            // Mark numbers as donated
             selectedNumbers.forEach(num => {
                 fundraiserData.donations[num] = true;
             });
             
             fundraiserData.raised += total;
             
-            // Record donor data with contact information
+            // Create donation record
             const donation = {
                 amount: total,
                 numbers: [...selectedNumbers],
                 method: selectedPayment,
-                timestamp: new Date().toISOString(),
+                timestamp: Date.now(),
                 date: new Date().toLocaleDateString(),
                 donorName: donorName,
                 donorPhone: donorPhone,
                 donorAddress: donorAddress
             };
+            
             donorData.push(donation);
+            
+            // Save data
+            saveData();
             
             // Reset selections
             selectedNumbers = [];
             selectedPayment = '';
             
-            // Clear donor form
+            // Clear form
             document.getElementById('donorName').value = '';
             document.getElementById('donorPhone').value = '';
             document.getElementById('donorAddress').value = '';
+            
+            closeModal();
             
             // Update UI
             generateNumberGrid();
             updateProgress();
             updateDonationSummary();
-            updateDonorList();
-            closeModal();
             
-            // Show success message
-            alert('Thanks for helping me get to Tanzania! I can\'t wait to share updates with you.');
+            alert('✅ Thank you! Your donation has been recorded.');
         }
 
-        // Close modal
         function closeModal() {
             document.getElementById('paymentModal').style.display = 'none';
         }
 
-        // Admin functions
+        // Admin Functions
+        function setupMobileAdminAccess() {
+            const fundraiserName = document.querySelector('.fundraiser-name');
+            fundraiserName.addEventListener('click', function() {
+                tapCount++;
+                if (tapCount === 7) {
+                    const adminPanel = document.getElementById('adminPanel');
+                    adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+                    tapCount = 0;
+                    
+                    this.style.color = '#e74c3c';
+                    setTimeout(() => {
+                        this.style.color = '#2c3e50';
+                    }, 1000);
+                }
+                
+                setTimeout(() => {
+                    tapCount = 0;
+                }, 3000);
+            });
+        }
+
         function toggleAdmin() {
             const content = document.getElementById('adminContent');
             content.classList.toggle('active');
         }
 
+        function updateAdminStats() {
+            if (!isAuthenticated) return;
+            document.getElementById('donationCount').textContent = donorData.length;
+            document.getElementById('totalRaised').textContent = fundraiserData.raised;
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        }
+
         function updateBio() {
-            const newBio = document.getElementById('bioText').value;
+            if (!isAuthenticated) return;
+            
+            const newBio = sanitizeInput(document.getElementById('bioText').value);
             fundraiserData.bio = newBio;
             document.getElementById('bioDisplay').textContent = newBio;
-            alert('Bio updated successfully!');
+            saveData();
+            alert('✅ Bio updated!');
         }
 
         function markNumbersAsDonated() {
-            const input = document.getElementById('manualNumbers').value.trim();
+            if (!isAuthenticated) return;
+            
+            const input = sanitizeInput(document.getElementById('manualNumbers').value);
             if (!input) {
                 alert('Please enter at least one number.');
                 return;
             }
             
-            const numbers = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 80);
+            const numbers = input.split(',')
+                .map(n => parseInt(n.trim()))
+                .filter(n => !isNaN(n) && n >= 1 && n <= 80);
             
             if (numbers.length === 0) {
                 alert('Please enter valid numbers between 1 and 80.');
@@ -820,12 +837,9 @@
             }
             
             let newlyMarked = [];
-            let alreadyTaken = [];
             
             numbers.forEach(num => {
-                if (fundraiserData.donations[num]) {
-                    alreadyTaken.push(num);
-                } else {
+                if (!fundraiserData.donations[num]) {
                     fundraiserData.donations[num] = true;
                     newlyMarked.push(num);
                 }
@@ -835,71 +849,34 @@
                 const total = newlyMarked.reduce((sum, num) => sum + num, 0);
                 fundraiserData.raised += total;
                 
+                // Record manual entry
+                const donation = {
+                    amount: total,
+                    numbers: newlyMarked,
+                    method: 'Manual Entry (Admin)',
+                    timestamp: Date.now(),
+                    date: new Date().toLocaleDateString(),
+                    donorName: 'Manual Entry',
+                    donorPhone: 'N/A',
+                    donorAddress: 'N/A'
+                };
+                
+                donorData.push(donation);
+                saveData();
+                
                 generateNumberGrid();
                 updateProgress();
-                updateDonationSummary();
+                updateAdminStats();
                 
-                alert(`Successfully marked numbers ${newlyMarked.join(', ')} as donated! Added ${total} to your total.${alreadyTaken.length > 0 ? `\n\nNumbers ${alreadyTaken.join(', ')} were already taken.` : ''}`);
-            } else {
-                alert(`All entered numbers (${alreadyTaken.join(', ')}) were already taken.`);
+                alert(`✅ Marked numbers ${newlyMarked.join(', ')} as donated!`);
             }
             
             document.getElementById('manualNumbers').value = '';
         }
 
-        function updatePaymentInfo() {
-            // Get values from admin inputs
-            fundraiserData.venmo = document.getElementById('venmoInput').value;
-            fundraiserData.cashapp = document.getElementById('cashappInput').value;
-            fundraiserData.paypal = document.getElementById('paypalInput').value;
-            fundraiserData.zelle = document.getElementById('zelleInput').value;
-            
-            // Update the payment buttons display
-            document.getElementById('paymentMethods').innerHTML = `
-                <div class="payment-btn" onclick="openVenmo('https://venmo.com/u/Lilia-Jones-2')">
-                    💜 Venmo
-                </div>
-                <div class="payment-btn" onclick="openCashApp('https://cash.app/$itsliliuh')">
-                    💚 CashApp
-                </div>
-                <div class="payment-btn" onclick="openPayPal('jonesoverseas4_3@yahoo.com')">
-                    💙 PayPal
-                </div>
-                <div class="payment-btn" onclick="selectPayment('zelle')">
-                    🟡 Zelle<br>512-585-4106
-                </div>
-            `;
-            
-            alert('Payment information updated successfully!');
-        }
-
-        function updateDonorList() {
-            const donorItems = document.getElementById('donorItems');
-            if (donorData.length === 0) {
-                donorItems.innerHTML = 'No donations yet';
-                return;
-            }
-            
-            donorItems.innerHTML = donorData.map((donation, index) => `
-                <div class="donor-item" style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #27ae60;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span><strong>Donation #${index + 1}: $${donation.amount}</strong></span>
-                        <span>${donation.date}</span>
-                    </div>
-                    <div style="font-size: 0.9em; color: #666;">
-                        <div><strong>Name:</strong> ${donation.donorName}</div>
-                        <div><strong>Phone:</strong> ${donation.donorPhone}</div>
-                        <div><strong>Address:</strong> ${donation.donorAddress}</div>
-                        <div><strong>Payment:</strong> ${donation.method}</div>
-                        <div><strong>Numbers:</strong> ${donation.numbers.join(', ')}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         function downloadDonorData() {
-            if (donorData.length === 0) {
-                alert('No donor data to download yet.');
+            if (!isAuthenticated || donorData.length === 0) {
+                alert('No donation data to download yet.');
                 return;
             }
             
@@ -910,11 +887,42 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "lilia_donor_data.csv");
+            link.setAttribute("download", `lilia_donations_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
+
+        function resetAllData() {
+            if (!isAuthenticated) return;
+            
+            if (confirm('⚠️ This will delete ALL donation data. Are you sure?')) {
+                fundraiserData = {
+                    name: "Lilia",
+                    bio: "I believe in the power of love and service to transform communities. This opportunity to serve in Tanzania fills my heart with joy!",
+                    raised: 0,
+                    goal: 3500,
+                    donations: {},
+                    completed: false
+                };
+                donorData = [];
+                
+                saveData();
+                generateNumberGrid();
+                updateProgress();
+                updateAdminStats();
+                
+                alert('✅ All data has been reset.');
+            }
+        }
+
+        // Keyboard shortcut for admin panel
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+                const adminPanel = document.getElementById('adminPanel');
+                adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+            }
+        });
 
         // Initialize the page
         init();
